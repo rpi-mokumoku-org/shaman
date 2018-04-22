@@ -1,0 +1,50 @@
+        <% data.forEach(function (value, key) { %>
+          <tr>
+            <td style="text-align: center;">
+              <input type="checkbox" class="form-control check_delete" name="delete_<%= value.id %>" id="delete_<%= value.id %>" value="<%= value.id %>">
+              <% value.ip_address = inet.ntoa(value.ip_address) %>
+              <input type="hidden" value="<%= JSON.stringify(value) %>" id="device_<%= value.id %>">
+            </td>
+            <td><a href="devices/detail/<%= value.id %>"><%= value.code %></a></td>
+            <td><%= value.name %></td>
+            <td><%= value.ip_address %></td>
+            <td><%= value.port %></td>
+            <% 
+              var con = {
+                '0': {
+                    color: "bg-red",
+                    icon : "fa-ban",
+                    msg  : "Offline"
+                  },
+                '1': {
+                    color: "bg-green",
+                    icon : "fa-wifi",
+                    msg  : "Online"
+                }}[value.status]; 
+            %>
+            <td><span class="badge <%= con.color %>" style="width: 40px; margin-right:5px"><i class="fa <%= con.icon %>"></i></span><%= con.msg %></td>
+            <% 
+              var doors = {
+                '0': {
+                    color: "label-success",
+                    msg  : "Open"
+                },
+                '1': {
+                    color: "label-danger",
+                    msg  : "Close"
+                },
+                'default': {
+                    color: "label-default",
+                    msg  : "Un sensing"
+                }};
+              var door = doors[value.door_status in doors ? value.door_status : "default"];
+            %>
+            <td><span class="label <%= door.color %>" style="width: 80px;"><%= door.msg %></span></td>
+            <td><%= value.description %></td>
+            <td>
+              <button type="button" class="btn btn-primary btn-sm modal_modify_button" data-toggle="modal" data-target="#modal-device" value="<%= value.id %>">
+                Modify
+              </button>
+            </td>
+          </tr>
+        <% }); %>

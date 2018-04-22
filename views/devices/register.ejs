@@ -1,0 +1,110 @@
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <h1>
+        Devices
+        <small>デバイス管理</small>
+      </h1>
+      <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-dashboard"></i> Level</a></li>
+        <li class="active">Here</li>
+      </ol>
+    </section>
+
+    <!-- Main content -->
+    <section class="content container-fluid">
+    
+    <div class="box box-info">
+      <div class="box-header with-border">
+        <h3 class="box-title">New Device</h3>
+      </div>
+      <!-- /.box-header -->
+      <div class="box-body">
+      <form role="form" action="/devices/register" method="post" id="device">
+        <!-- text input -->
+        <div class="form-group">
+          <label>Code</label>
+          <input type="text" class="form-control" placeholder="Enter ..." name="code">
+        </div>
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" class="form-control" placeholder="Enter ..." name="name">
+        </div>
+        <div class="form-group" style="margin-bottom: 5px;">
+          <input type="checkbox" class="form-control" name="test" id="test" disabled>
+          <label>Connection settings</label>
+        </div>
+        <div class="group">
+          <div class="form-group">
+            <label>VPN IP Address</label>
+            <div class="input-group">
+              <div class="input-group-addon">
+                <i class="fa fa-laptop"></i>
+              </div>
+              <input type="text" class="form-control" data-inputmask="'alias': 'ip'" data-mask="" name="ip">
+            </div>
+            <!-- /.input group -->
+          </div>
+          <div class="form-group">
+            <label>VPN Port</label>
+            <input type="text" class="form-control" placeholder="Enter ..." name="port">
+          </div>
+          <div class="form-group">
+            <button type="button" class="btn btn-flat bg-purple" id="test_btn">
+              <i class="fa fa-wifi"></i>
+              Test connect
+            </button><!--
+         --><button type="button" class="btn btn-flat" style="width: 130px" disabled id="con_status">
+              <i class="fa fa-ellipsis-h"></i><span>&nbsp; UN CONNECT</span>
+            </button>
+            <span id="con_msg"></span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea class="form-control" rows="3" placeholder="Enter ..." name="description"></textarea>
+        </div>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-default" id="modal_button">Register</button>
+      </form>
+      </div>
+      <!-- /.box-body -->
+    </div>
+    <div class="modal fade" id="modal-default" style="display: none;">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">×</span>
+            </button>
+            <h4 class="modal-title">Confirmation</h4>
+          </div>
+          <div class="modal-body">
+            <h4>
+            <dl class="dl-horizontal">
+              <dt>Code</dt>
+              <dd id="modal_code"></dd>
+              <dt>Name</dt>
+              <dd id="modal_name"></dd>
+              <dt>VPN IP Address</dt>
+              <dd id="modal_ip"></dd>
+              <dt>VPN Port</dt>
+              <dd id="modal_port"></dd>
+            </dl>
+            </h4>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-primary pull-left" id="confirm">Confirm</button>
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          </div>
+        </div>
+        <!-- /.modal-content -->
+      </div>
+      <!-- /.modal-dialog -->
+    </div>
+
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+  <script src="/javascripts/devices/register.js"></script>

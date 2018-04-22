@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/locale/ja.js"></script>
+    <script src="/javascripts/modal.js"></script>
+    <script>
+      $(function(){
+
+        var events = $._data($('.modal-open').get(0), "events");
+        var originalHandler = events.click[0].handler;
+        
+        $('.modal-open').off('click', originalHandler);
+        
+        $('.modal-open').on('click', {next: originalHandler}, function(event) {
+          var code = 'JBK001';
+          $("#logs").children("li:not(.dummy)").remove();
+          $.get( `/manage/${code}`, function( data ) {
+            console.log(data);
+            $("#code").text(data.code);
+            $("#name").text(data.name);
+            if (data.status === 1) {
+              $("#status").text("Sensing");
+            } else {
+              $("#status").text("Stopped");
+            }
+            $("#lastsense").text(moment(data.last_sense_time).format("YYYY/MM/DD HH:mm:ss"));
+
+            $.get( `/manage/logs/${code}/10`, function( data ) {
+              for (var i = 0; i < data.length; i++) {
+                var li = $("#logs").children(".dummy").clone();
+                li.append("sense time: " + moment(data[i].sense_time).format("YYYY/MM/DD HH:mm:ss") + ", status: " + data[i].status);
+                li.show();
+                li.removeClass("dummy");
+                $("#logs").append(li);
+              }
+              event.data.next();
+            });
+          });
+        });
+
+      }); 
+    </script>
+  </head>
+  <body>
+    <h1><%= title %></h1>
+    <p>Welcome to IoT Management System</p>
+
+    <table>
+      <tr>
+        <th>Code</th>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Status</th>
+        <th>Last Sence Time</th>
+      </tr>
+      <% data.forEach(function (value, key) { %>
+        <tr>
+          <td><%= value.code %></td>
+          <td><%= value.name %></td>
+          <td><%= value.description %></td>
+          <% if (value.status === 1) { %>
+            <td>Sensing</td>
+          <% } else { %>
+            <td>Stopped</td>
+          <% } %>
+          <td><%= moment(value.last_sensed_time).format("YYYY/MM/DD HH:mm:ss") %></td>
+        </tr>
+      <% }); %>
+    </table>
+
+    <input type="button" class="modal-open raised" value="log">
+    <div id="modal-content">
+      <span id="modal-close" class="icon close" style="float: right;"></span>
+      <div id="modal-content-innar">
+        <p>Logs</p>
+        <p>Code:<span id="code"></span></p>
+        <p>Name:<span id="name"></span></p>
+        <p>Status:<span id="status"></span></p>
+        <p>Last sense:<span id="lastsense"></span></p>
+        <ul id="logs">
+          <li class="dummy" style="display: none;"></li>
+        </ul>
+      </div>
+    </div>
+
+  </body>
+</html>

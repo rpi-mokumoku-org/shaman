@@ -1,0 +1,39 @@
+<html>
+  <head>
+    <title>hello node.js!</title>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      $(document).ready(function(){
+        var socket = io.connect(location.host);
+        socket.on('connect', function() {
+          console.log("connect [sessid = " + socket.id + "]");
+        });
+        socket.on('message', function(data) {
+          console.log('data = ' + data.value);
+          $('div#comment').append('<div>' + data.value + ' [sessid = ' + data.sessid + ']</div>');
+        });
+        socket.on('disconnect', function() { console.log('exit !!'); });
+        
+        $(':button[name=buttonMsg]').click(function() {
+          var msg = $(':text[name=message]').val();
+          socket.emit('message', { value: msg, sessid: socket.id });
+        });
+        
+        $(':button[name=buttonDiscon]').click(function() {
+          var msg = "Disconnected [sessid = " + socket.id + "]";
+          socket.emit('message', { value: msg, sessid: socket.id });
+          socket.disconnect();
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <input type="text" name="message" value="">
+    <input type="button" name="buttonMsg" value="send message">
+    <input type="button" name="buttonDiscon" value="disconnect">
+    <h1>comment</h1>
+    <div id="comment">
+    </div>
+  </body>
+</html>

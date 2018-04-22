@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Shaman IoT Management System</title>
+  <!-- Tell the browser to be responsive to screen width -->
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+  <link rel="stylesheet" href="/stylesheets/bower_components/bootstrap/dist/css/bootstrap.min.css">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="/stylesheets/bower_components/font-awesome/css/font-awesome.min.css">
+  <!-- Ionicons -->
+  <link rel="stylesheet" href="/stylesheets/bower_components/Ionicons/css/ionicons.min.css">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="/stylesheets/AdminLTE.min.css">
+  <link rel="stylesheet" href="/stylesheets/skins/skin-blue.min.css">
+
+  <!-- Google Font -->
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+</head>
+<body class="hold-transition login-page">
+
+<!-- jQuery 3 -->
+<script src="/javascripts/bower_components/jquery/dist/jquery.min.js"></script>
+<!-- Bootstrap 3.3.7 -->
+<script src="/javascripts/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+<!-- AdminLTE App -->
+<script src="/javascripts/adminlte.min.js"></script>
+<script src="/plugins/iCheck/icheck.min.js"></script>
+
+<style>
+.status {
+  height: 350px;
+  width: inherit;
+  display: table-cell;
+  vertical-align: middle;
+  text-align: center;
+}
+.status h1 {
+  font-size: 48px;
+}
+.warning_light {
+  background-color: #f39c12 !important;
+  color: #ffffff !important;
+}
+.warning_dark {
+  background-color: #948c4a !important;
+  color: gray !important;
+}
+.success_light {
+  background-color: #00a65a !important;
+  color: #ffffff !important;
+}
+.success_dark {
+  background-color: #4a7b43 !important;
+  color: gray !important;
+}
+</style>
+<section class="content container-fluid">
+  <div class="row">
+    <div class="col-sm-6">
+      <div id="on"class="alert alert-warning alert-dismissible status">
+        <h1><i class="icon fa fa-square"></i> 使用中</h1>
+      </div>
+    </div>
+    <div class="col-sm-6">
+      <div id="off" class="alert alert-success alert-dismissible status">
+        <h1><i class="icon fa fa-square-o"></i> 空室</h1>
+      </div>
+    </div>
+  </div>
+</section>
+<script>
+$(function(){
+
+  setInterval(function(){
+    $.ajax({
+      type: "GET", 
+      url: 'http://127.0.0.1:1880/sense/door', 
+      //url: 'http://192.168.246.2:1880/sense/door', 
+      success: function (result) {
+        if (!result) {
+          return;
+        }
+        if (result.sense_data) {
+          var sense_data = JSON.parse(result.sense_data);
+          var status = sense_data.status;
+        }
+        if (status == "1") {
+          $("#on").addClass("warning_light");
+          $("#on").removeClass("warning_dark");
+          $("#off").addClass("success_dark");
+          $("#off").removeClass("success_light");
+        
+        } else {
+          $("#on").addClass("warning_dark");
+          $("#on").removeClass("warning_light");
+          $("#off").addClass("success_light");
+          $("#off").removeClass("success_dark");
+        
+        }
+
+      }
+    })
+  
+  }, 1000);
+
+});
+</script>
+</body>
+</html>
