@@ -2,7 +2,7 @@
 var mysql = require('mysql');
 
 var db_config = {
-  host     : 'medamaoyaji',
+  host     : '13.231.242.115',
   user     : 'shaman',
   password : 'shaman',
   database : 'medamaoyaji_db' 

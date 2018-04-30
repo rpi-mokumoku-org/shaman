@@ -15,9 +15,6 @@ var app = express();
 // app
 app.locals.moment = moment
 
-// Listen port
-app.set('port', 80);
-
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');

@@ -4,7 +4,7 @@ var inet = require('inet');
 var moment = require('moment')
 
 var db_config = {
-  host     : 'medamaoyaji',
+  host     : '13.231.242.115',
   user     : 'shaman',
   password : 'shaman',
   database : 'medamaoyaji_db' 
