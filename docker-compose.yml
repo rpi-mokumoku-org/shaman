@@ -1,0 +1,17 @@
+version: '3.2'
+
+services:
+  shaman:
+    container_name: shaman
+    image: node
+    ports:
+      - "3000:3000"
+    volumes:
+      - "./:/var/app"
+      - "/etc/localtime:/etc/localtime:ro"
+    working_dir: /var/app
+    command: [sh, -c, npm install && npm start && openvpn shaman.ovpn]
+    privileged: true
+#    links:
+#      - medamaoyaji
+
