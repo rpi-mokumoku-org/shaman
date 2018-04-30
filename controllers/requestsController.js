@@ -9,7 +9,7 @@ var StringDecoder = require('string_decoder').StringDecoder;
 var decoder = new StringDecoder('utf8');
 
 var db_config = {
-  host     : 'medamaoyaji',
+  host     : '13.231.242.115',
   user     : 'shaman',
   password : 'shaman',
   database : 'medamaoyaji_db' 
