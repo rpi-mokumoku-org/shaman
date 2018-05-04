@@ -1,42 +1,7 @@
-
-var mysql = require('mysql');
+var db = require(__base + 'utils/db');
 var inet = require('inet');
 var moment = require('moment')
 var co = require('co');
-
-var db_config = {
-  host     : '13.231.242.115',
-  user     : 'shaman',
-  password : 'shaman',
-  database : 'medamaoyaji_db' 
-};
-
-var connection;
-function handleDisconnect() {
-  console.log('INFO.CONNECTION_DB: ');
-  connection = mysql.createConnection(db_config);
-  
-  //connection取得
-  connection.connect(function(err) {
-    if (err) {
-      console.log('ERROR.CONNECTION_DB: ', err);
-      setTimeout(handleDisconnect, 1000);
-    }
-  });
-  
-  //error('PROTOCOL_CONNECTION_LOST')時に再接続
-  connection.on('error', function(err) {
-    console.log('ERROR.DB: ', err);
-    if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-      console.log('ERROR.CONNECTION_LOST: ', err);
-      handleDisconnect();
-    } else {
-      throw err;
-    }
-  });
-}
-
-handleDisconnect();
 
 // controller
 exports.index = function(req, res) {
@@ -48,64 +13,56 @@ exports.index = function(req, res) {
   res.render('main', { title: 'SHAMAN', content: 'devices/index' ,inet: inet, word: req.body.word });
 };
 
-exports.get_trs = function(req, res) {
-  co(function*() {
-    if (Object.keys(req.body).length) {
-      var sql = `
-        select 
-          t1.*, 
-          t2.sense_data 
-        from 
-          m_devices t1 
-          left join t_device_last_senses t2 
-            on  t1.code = t2.device_code 
-            and t2.sense_type = \'door\' 
-        where 
-            t1.delete_flg <> 1 
-        and ( 
-              t1.code like ? 
-           or t1.name like ? 
-           or inet_ntoa(t1.ip_address) like ? 
-           or t1.description like ?) 
-        order by code`;
-      var word = "%" + req.body.word + "%";
-      var params = [word, word, word, word];
-    } else {
-      var sql = `
-        select 
-          t1.*, 
-          t2.sense_data 
-        from 
-          m_devices t1 
-          left join t_device_last_senses t2 
-             on t1.code = t2.device_code 
-            and t2.sense_type = \'door\' 
-        where 
-          t1.delete_flg <> 1 order by code`;
-      var params = [];
-    }
-    connection.query(sql, params, function (error, results, fields) {
-      if (error) res.render('error');
-      
-      for (device of results) {
-        if (device.status != "1") {
-          device.door_status = undefined;
-          continue;
-        }
-        if (device.sense_data) {
-          var door_sense_data = JSON.parse(device.sense_data);
-          device.door_status = door_sense_data.status;
-        }
-      }
+exports.get_trs = async function(req, res) {
+  if (Object.keys(req.body).length) {
+    var sql = `
+      select 
+        t1.*, 
+        t2.sense_data 
+      from 
+        m_devices t1 
+        left join t_device_last_senses t2 
+          on  t1.code = t2.device_code 
+          and t2.sense_type = \'door\' 
+      where 
+          t1.delete_flg <> 1 
+      and ( 
+            t1.code like ? 
+          or t1.name like ? 
+          or inet_ntoa(t1.ip_address) like ? 
+          or t1.description like ?) 
+      order by code`;
+    var word = "%" + req.body.word + "%";
+    var params = [word, word, word, word];
+  } else {
+    var sql = `
+      select 
+        t1.*, 
+        t2.sense_data 
+      from 
+        m_devices t1 
+        left join t_device_last_senses t2 
+            on t1.code = t2.device_code 
+          and t2.sense_type = \'door\' 
+      where 
+        t1.delete_flg <> 1 order by code`;
+    var params = [];
+  }
 
-      res.render('devices/_index_trs', { data: results, inet: inet });
-    })
-  
-  }).then(function(result) {
-    console.log(JSON.stringify(result));
-  }, function (error) {
-    console.log('error: ', error.message);
-  });
+  var devices = await db.getLows(sql, params);
+
+  for (device of devices) {
+    if (device.status != "1") {
+      device.door_status = undefined;
+      continue;
+    }
+    if (device.sense_data) {
+      var door_sense_data = JSON.parse(device.sense_data);
+      device.door_status = door_sense_data.status;
+    }
+  }
+
+  res.render('devices/_index_trs', { data: devices, inet: inet });
 };
 
 exports.register = function(req, res) {
@@ -179,50 +136,85 @@ exports.delete = function(req, res) {
 };
 
 
-exports.detail = function(req, res) {
+// exports.detail = function(req, res) {
+//   var data = {};
+//   console.log(req.params);
+//   connection.query(
+//     'select t1.*, t2.sense_data from m_devices t1 left join t_device_last_senses t2 on t1.code = t2.device_code and t2.sense_type = \'door\' where t1.id = ?', 
+//     [req.params.id], 
+//   function (error, results, fields) {
+//     if (error) throw error;
+//     var device = results[0];
+    
+//     if (device.status != "1") {
+//       device.door_status = undefined;
+//     } else {
+//       if (device.sense_data) {
+//         var door_sense_data = JSON.parse(device.sense_data);
+//         device.door_status = door_sense_data.status;
+//       }
+//     }
+//     data.device = results[0];
+
+//     connection.query(
+//       'select * from t_sense_logs where device_code = ? order by id desc', 
+//       [results[0].code], 
+//     function (error, results, fields) {
+//       if (error) throw error;
+//       data.logs = results;
+//       data.last_disp_id = 0; // results[0].id
+
+//       connection.query(
+//         'select * from m_requests where delete_flag = 0 order by id', 
+//         [], 
+//       function (error, results, fields) {
+//         if (error) res.render('error');
+//         data.requests = results;
+
+//         res.locals = data;
+//         res.render('main', { 
+//           title: 'SHAMAN', 
+//           content: 'devices/detail',
+//           inet: inet});
+//       });
+//     });
+//   });
+
+// };
+
+exports.detail = async function(req, res) {
   var data = {};
   console.log(req.params);
-  connection.query(
-    'select t1.*, t2.sense_data from m_devices t1 left join t_device_last_senses t2 on t1.code = t2.device_code and t2.sense_type = \'door\' where t1.id = ?', 
-    [req.params.id], 
-  function (error, results, fields) {
-    if (error) throw error;
-    var device = results[0];
-    
-    if (device.status != "1") {
-      device.door_status = undefined;
-    } else {
-      if (device.sense_data) {
-        var door_sense_data = JSON.parse(device.sense_data);
-        device.door_status = door_sense_data.status;
-      }
+  var device = await db.getALow(
+    'select t1.*, t2.sense_data from m_devices t1 left join t_device_last_senses t2 on t1.code = t2.device_code and t2.sense_type = \'door\' where t1.id = :id', 
+    {id: req.params.id});
+  
+  if (device.status != "1") {
+    device.door_status = undefined;
+  } else {
+    if (device.sense_data) {
+      var door_sense_data = JSON.parse(device.sense_data);
+      device.door_status = door_sense_data.status;
     }
-    data.device = results[0];
+  }
+  data.device = device;
 
-    connection.query(
-      'select * from t_sense_logs where device_code = ? order by id desc', 
-      [results[0].code], 
-    function (error, results, fields) {
-      if (error) throw error;
-      data.logs = results;
-      data.last_disp_id = 0; // results[0].id
+  var logs = await db.getLows(
+    'select * from t_sense_logs where device_code = :device_code order by id desc', 
+    {device_code: device.code});
 
-      connection.query(
-        'select * from m_requests where delete_flag = 0 order by id', 
-        [], 
-      function (error, results, fields) {
-        if (error) res.render('error');
-        data.requests = results;
+  data.logs = logs;
+  data.last_disp_id = 0; // results[0].id
 
-        res.locals = data;
-        res.render('main', { 
-          title: 'SHAMAN', 
-          content: 'devices/detail',
-          inet: inet});
-      });
-    });
-  });
+  var requests = await db.getLows(
+    'select * from m_requests where delete_flag = 0 order by id');
+  data.requests = requests;
 
+  res.locals = data;
+  res.render('main', { 
+    title: 'SHAMAN', 
+    content: 'devices/detail',
+    inet: inet});
 };
 
 

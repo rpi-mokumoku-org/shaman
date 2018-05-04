@@ -6,10 +6,9 @@ var devicesController = require('../controllers/devicesController');
 var requestsController = require('../controllers/requestsController'); 
 var loginsController = require('../controllers/loginsController'); 
 
-// Home
-router.get('/', loginsController.index)
-
 // Logins
+router.get('/', loginsController.index)
+router.get('/logins', loginsController.index)
 router.post('/logins', loginsController.login);
 
 // Devices
