@@ -30,8 +30,7 @@ app.locals.moment = moment
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-// uncomment after placing your favicon in /public
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -78,8 +77,7 @@ function handleDisconnect() {
 
 handleDisconnect();
 
-
-
+// bind router
 app.use('/', index);
 app.use('/voices', voices);
 
@@ -92,6 +90,7 @@ app.use(function(req, res, next) {
 
 // error handler
 app.use(function(err, req, res, next) {
+  console.log("error handler");
   console.log(err.message);
   // set locals, only providing error in development
   res.locals.message = err.message;
@@ -99,6 +98,20 @@ app.use(function(err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
   res.render('error');
+});
+
+if (app.get('env') === 'development') {
+  process.on('unhandledRejection', (err, p) => {
+    console.error('Unhandled rejection...orz');
+    console.error('  Error : ', err);
+    console.error('  Promise : ', p);
+    next(err);
+  });
+}
+
+process.on('uncaughtException', (err) => {
+  console.error(err);
+  process.abort(); // uncaughtException の時は落ちる
 });
 
 module.exports = app;

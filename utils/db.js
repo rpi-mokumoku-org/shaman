@@ -11,12 +11,12 @@ var custom_format = function (query, values) {
 };
 
 db.getLows = async function(sql, params = {}) {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     connection.config.queryFormat = custom_format;
     connection.query({ sql: sql, values: params }, (error, results, fields) => {
       connection.config.queryFormat = undefined;
-      if (error) res.render('error');
-      resolve ((!results || results.length == 0) ? undefined : results);
+      if (error) reject(error);
+      resolve ((!results || results.length == 0) ? [] : results);
     });
   });
 }
@@ -27,7 +27,7 @@ db.getALow = async function(sql, params = {}) {
     connection.config.queryFormat = custom_format;
     connection.query({ sql: sql, values: params }, (error, results, fields) => {
       connection.config.queryFormat = undefined;
-      if (error) res.render('error');
+      if (error) reject(error);
       resolve ((!results || results.length == 0) ? undefined : results[0]);
     });
   });
