@@ -76,7 +76,7 @@ exports.get_trs = async function(req, res) {
 exports.register = function(req, res) {
   var now = new Date();
 
-  const devices = await db.insert('m_devices', {
+  const result = await db.insert('m_devices', {
     code: req.body.code,
     name: req.body.name,
     ip_address: inet.aton(req.body.ip),
