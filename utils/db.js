@@ -33,14 +33,14 @@ db.getALow = async function(sql, params = {}) {
   });
 }
 
-db.insert = async function(table, params = {}) {
-  console.log(connection.config.queryFormat);
+db.insert = async function(table, row = {}) {
   return new Promise(resolve => {
-    connection.config.queryFormat = custom_format;
-    connection.query({ sql: sql, values: params }, (error, results, fields) => {
-      connection.config.queryFormat = undefined;
+    connection.query(`insert into ${table} set ?`, row, (error, results, fields) => {
       if (error) reject(error);
-      resolve ((!results || results.length == 0) ? undefined : results[0]);
+      console.log("error:" + error);
+      console.log("results:" + results);
+      console.log("results:" + fields);
+      resolve (results);
     });
   });
 }

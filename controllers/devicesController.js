@@ -76,25 +76,22 @@ exports.get_trs = async function(req, res) {
 exports.register = function(req, res) {
   var now = new Date();
 
-  connection.query(
-    'insert into m_devices set ?',
-    {
-      code: req.body.code,
-      name: req.body.name,
-      ip_address: inet.aton(req.body.ip),
-      port: req.body.port,
-      description: req.body.description,
-      status    : '1',
-      delete_flg: 0,
-      created: now,
-      created_by: "jibun",
-      updated: now,
-      updated_by: "jibun"},
-  function (error, results, fields) {
-    if (error) throw error;
-    res.header('Content-Type', 'application/json; charset=utf-8')
-    res.send({result: 0});
-  })
+  const devices = await db.insert('m_devices', {
+    code: req.body.code,
+    name: req.body.name,
+    ip_address: inet.aton(req.body.ip),
+    port: req.body.port,
+    description: req.body.description,
+    status: '1',
+    delete_flg: 0,
+    created: now,
+    created_by: "jibun",
+    updated: now,
+    updated_by: "jibun",
+  });
+
+  res.header('Content-Type', 'application/json; charset=utf-8')
+  res.send({result: 0});
 };
   
   
