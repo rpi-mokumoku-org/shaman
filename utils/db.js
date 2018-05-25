@@ -33,4 +33,16 @@ db.getALow = async function(sql, params = {}) {
   });
 }
 
+db.insert = async function(table, params = {}) {
+  console.log(connection.config.queryFormat);
+  return new Promise(resolve => {
+    connection.config.queryFormat = custom_format;
+    connection.query({ sql: sql, values: params }, (error, results, fields) => {
+      connection.config.queryFormat = undefined;
+      if (error) reject(error);
+      resolve ((!results || results.length == 0) ? undefined : results[0]);
+    });
+  });
+}
+
 module.exports = db;

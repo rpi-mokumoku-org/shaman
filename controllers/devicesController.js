@@ -14,8 +14,9 @@ exports.index = async function(req, res) {
 };
 
 exports.get_trs = async function(req, res) {
+  const _POST = req.body;
   // try {
-    if (Object.keys(req.body).length) {
+    if (Object.keys(_POST).length) {
       var sql = `
         select 
           t1.*, 
@@ -28,13 +29,15 @@ exports.get_trs = async function(req, res) {
         where 
             t1.delete_flg <> 1 
         and ( 
-              t1.code like ? 
-            or t1.name like ? 
-            or inet_ntoa(t1.ip_address) like ? 
-            or t1.description like ?) 
-        order by code`;
-      var word = "%" + req.body.word + "%";
-      var params = [word, word, word, word];
+              t1.code like :word 
+            or t1.name like :word 
+            or inet_ntoa(t1.ip_address) like :word 
+            or t1.description like :word) 
+        order by code
+      `;
+      var params = {
+        word: `%${_POST.word}%`
+      };
     } else {
       var sql = `
         select 
@@ -47,7 +50,7 @@ exports.get_trs = async function(req, res) {
             and t2.sense_type = \'door\' 
         where 
           t1.delete_flg <> 1 order by code`;
-      var params = [];
+      var params = {};
     }
 
     const devices = await db.getLows(sql, params);
