@@ -27,13 +27,13 @@ router.post('/devices/logs/:sense_type/:device_code', wrap(devicesController.get
 router.post('/devices/last_senses', wrap(devicesController.get_last_senses));
 router.post('/devices/door_history', wrap(devicesController.get_door_history));
 router.post('/devices', wrap(devicesController.index));
-router.post('/devices/register', devicesController.register);
-router.post('/devices/delete', devicesController.delete);
-router.post('/devices/update', devicesController.update);
+router.post('/devices/register', wrap(devicesController.register));
+router.post('/devices/delete', wrap(devicesController.delete));
+router.post('/devices/update', wrap(devicesController.update));
 
 // Requests
-router.post('/requests', requestsController.request);
-router.post('/prerequests', requestsController.prerequest);
+router.post('/requests', wrap(requestsController.request));
+router.post('/prerequests', wrap(requestsController.prerequest));
 
 
 router.get('/rpi', function(req, res) {

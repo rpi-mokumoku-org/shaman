@@ -1,22 +1,24 @@
 global.__base = __dirname + '/';
 
-var express = require('express');
-var session = require('express-session');
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-var mysql = require('mysql');
-var moment = require('moment')
-var passport = require('passport')
+const express = require('express');
+const session = require('express-session');
+const path = require('path');
+const favicon = require('serve-favicon');
+const logger = require('morgan');
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
+// TODO: あとで消す
+const mysql = require('mysql');
+const db = require(__base + 'utils/db');
+const moment = require('moment')
+const passport = require('passport')
   , LocalStrategy = require('passport-local').Strategy;
 
-var index = require('./routes/index');
-var voices = require('./routes/voices');
+const index = require('./routes/index');
+const voices = require('./routes/voices');
 require('date-utils');
 
-var app = express();
+const app = express();
 
 // import config by envirenment
 require('dotenv').config({
@@ -40,42 +42,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(passport.initialize());
 // app.use(passport.session());
 
-
-// Database conn
-var db_config = {
-  host     : process.env.DB_HOST,
-  user     : process.env.DB_USER,
-  password : process.env.DB_PASS,
-  database : process.env.DB_DBNAME 
-};
-
-var connection;
-function handleDisconnect() {
-  console.log('INFO.CONNECTION_DB: ');
-  connection = mysql.createConnection(db_config);
-  global.connection = connection;
-  
-  //connection取得
-  connection.connect(function(err) {
-    if (err) {
-      console.log('ERROR.CONNECTION_DB: ', err);
-      setTimeout(handleDisconnect, 1000);
-    }
-  });
-  
-  //error('PROTOCOL_CONNECTION_LOST')時に再接続
-  connection.on('error', function(err) {
-    console.log('ERROR.DB: ', err);
-    if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-      console.log('ERROR.CONNECTION_LOST: ', err);
-      handleDisconnect();
-    } else {
-      throw err;
-    }
-  });
-}
-
-handleDisconnect();
+// TODO:後で消す
+const connection = db.connect();
+// Connect to database （ここでしか呼ばないようにする）
+// db.connect();
 
 // bind router
 app.use('/', index);
@@ -83,7 +53,7 @@ app.use('/voices', voices);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  var err = new Error('Not Found');
+  let err = new Error('Not Found');
   err.status = 404;
   next(err);
 });
